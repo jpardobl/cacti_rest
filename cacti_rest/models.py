@@ -102,3 +102,9 @@ class DataLocal(models.Model):
                 "host_id": self.host_id.description, 
                 "template": u"%s" % self.template.get().data_template_id.name,
                 })
+
+class Settings(models.Model):
+    name = models.CharField(max_length=50L, primary_key=True)
+    value = models.CharField(max_length=1024L)
+    class Meta:
+        db_table = 'settings'
