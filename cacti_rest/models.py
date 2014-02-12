@@ -102,6 +102,9 @@ class DataLocal(models.Model):
                 "host_id": self.host_id.description, 
                 "template": u"%s" % self.template.get().data_template_id.name,
                 })
+        
+    def get_rra_path(self):
+        return self.data_template_id.data_source_path
 
 class Settings(models.Model):
     name = models.CharField(max_length=50L, primary_key=True)
