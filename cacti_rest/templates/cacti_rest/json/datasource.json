@@ -1,0 +1,6 @@
+{
+   "resource_type": "datasource",
+   "id": {{id}},
+   "url": "{{url}}",
+   "data": [{{data|safeseq|join:","}}]
+}

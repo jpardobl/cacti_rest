@@ -7,7 +7,7 @@
 # Also note: You'll have to insert the output of 'django-admin.py sqlcustom [appname]'
 # into your database.
 from __future__ import unicode_literals
-
+from django.core.urlresolvers import reverse
 from django.db import models
 import simplejson
 
@@ -56,7 +56,11 @@ class Host(models.Model):
         db_table = 'host'
         
     def to_json(self):
-        return simplejson.dumps({"hostname": self.hostname, "id": self.id, "description": self.description})
+        return simplejson.dumps({
+            "hostname": self.hostname, 
+            "id": self.id, 
+            "description": self.description,
+            "datasources": reverse('resource_host_datasource', args=[self.id, ])})
         
 
 class DataTemplateData(models.Model):
@@ -101,6 +105,7 @@ class DataLocal(models.Model):
                 "id": self.id, 
                 "host_id": self.host_id.description, 
                 "template": u"%s" % self.template.get().data_template_id.name,
+                "data": reverse('resource_datasource', args=[self.id, ]),
                 })
         
     def get_rra_path(self):
