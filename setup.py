@@ -24,6 +24,7 @@ setup(
     install_requires = (
       "Django==1.5",
       "simplejson",
+      "mysql-python",
 
     ),
     test_suite='test_project.tests.runtests',

@@ -2,19 +2,17 @@
 from cacti_rest.utils import retrieve_param
 from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response 
-from cacti_rest.models import DataLocal
+from cacti_rest.models import Host
 import logging, simplejson
 from django.core.urlresolvers import reverse
 
 
-def get(request, host):
-    try:        
+def get(request):
+    try:
         offset = int(retrieve_param(request, "offset", 0))
         limit = int(retrieve_param(request, "limit", 50)) + offset 
-        query = DataLocal.objects.filter(host_id=host)[offset:limit]
-        #print query.query
-        data = [{"resource_type": "datasource", "url": reverse("resource_datasource", args=[x.id, ])} for x in query]
-        #print "data: %s" % data
+        #print "offset: %s; Limit: %s" % (offset, limit)
+        data = [{"resource_type": "host", "url": reverse("resource_host", args=[x.id, ])} for x in Host.objects.all()[offset:limit]]
         response =  render_to_response(
             "cacti_rest/json/list.json",
             {"data": data},
@@ -22,8 +20,7 @@ def get(request, host):
         response['Cache-Control'] = 'no-cache'
         return response
         
-    except AttributeError, ex:
-        
+    except Exception, ex:
         logging.error("Resource get error: %s" % ex)
         response =  HttpResponseServerError(
             content=simplejson.dumps({"errors": str(ex)}),

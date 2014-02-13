@@ -57,6 +57,7 @@ class Host(models.Model):
         
     def to_json(self):
         return simplejson.dumps({
+            "resource_type": "host",
             "hostname": self.hostname, 
             "id": self.id, 
             "description": self.description,
@@ -102,6 +103,7 @@ class DataLocal(models.Model):
         
     def to_json(self):
         return simplejson.dumps({
+                "resource_type": "datasource",
                 "id": self.id, 
                 "host_id": self.host_id.description, 
                 "template": u"%s" % self.template.get().data_template_id.name,

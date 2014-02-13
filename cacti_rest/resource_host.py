@@ -4,16 +4,16 @@ from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response 
 from cacti_rest.models import Host
 import logging, simplejson
+from django.core.urlresolvers import reverse
 
-def get(request):
+
+def get(request, *args, **kwargs):
     try:
-        offset = int(retrieve_param(request, "offset", 0))
-        limit = int(retrieve_param(request, "limit", 50)) + offset 
-        print "offset: %s; Limit: %s" % (offset, limit)
-        data = [x.to_json() for x in Host.objects.all()[offset:limit]]
+        
+        obj = Host.objects.get(id=args[0])
         response =  render_to_response(
-            "cacti_rest/json/list.json",
-            {"data": data},
+            "cacti_rest/json/host.json",
+            {"data": obj.to_json()},
             content_type="application/json") 
         response['Cache-Control'] = 'no-cache'
         return response
