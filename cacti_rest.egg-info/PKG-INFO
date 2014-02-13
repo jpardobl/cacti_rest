@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: cacti-rest
-Version: 0.1
+Version: 0.2.2
 Summary: A Django app to publish via REST the cacti collected data
 Home-page: http://blog.digitalhigh.es
 Author: Javier Pardo Blasco(jpardobl)

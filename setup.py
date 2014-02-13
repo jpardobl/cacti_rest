@@ -8,7 +8,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name = 'cacti_rest',
-    version = '0.1',
+    version = '0.2.2',
     packages = ['cacti_rest'],
     include_package_data = True,
     license = 'BSD License',
@@ -25,7 +25,6 @@ setup(
       "Django==1.5",
       "simplejson",
       "mysql-python",
-
     ),
     test_suite='test_project.tests.runtests',
     tests_require=("selenium", "requests"),
