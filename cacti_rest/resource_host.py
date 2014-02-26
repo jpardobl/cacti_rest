@@ -12,7 +12,7 @@ def get(request, *args, **kwargs):
         
         obj = Host.objects.get(id=args[0])
         response =  render_to_response(
-            "cacti_rest/json/host.json",
+            "cacti_rest/json/object.json",
             {"data": obj.to_json()},
             content_type="application/json") 
         response['Cache-Control'] = 'no-cache'

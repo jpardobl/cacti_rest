@@ -118,3 +118,64 @@ class Settings(models.Model):
     value = models.CharField(max_length=1024L)
     class Meta:
         db_table = 'settings'
+
+DATA_INPUT_TYPE_CHOICES = (
+        ("0", "SNMP"),
+        ("1", "SNMP Query" ),
+        ("2", "Script/Command"),
+        ("3", "Script Query"),
+        ("4", "Script - Script Server (PHP)"),
+        ("5", "Script Query - Script Server"),
+)
+
+class DataInput(models.Model):
+    id = models.IntegerField(primary_key=True,blank=True)
+    hash = models.CharField(max_length=32L, blank=True)
+    name = models.CharField(max_length=200L)
+    input_string = models.CharField(max_length=255L, blank=True)
+    type_id = models.CharField(max_length=3, choices=DATA_INPUT_TYPE_CHOICES)
+    
+    class Meta:
+        db_table = 'data_input'
+    
+    def to_json(self):
+        return simplejson.dumps({
+            "resource_type": "data_input_method",             
+            "id": self.id, 
+            "name": self.name,
+            "input_string": self.input_string,
+            "type": self.type_id,
+            })
+    def save_off(self, request):
+        from cacti_rest import utils
+        print "ahora metemos el hash"
+        self.hash = utils.generate_hash(request)
+        print "ya esta metodo: %s" % self.hash
+        return super(DataInput, self).save()
+            
+
+class DataInputData(models.Model):
+    #data_input_field_id = models.IntegerField()
+    data_input_field_id = models.ForeignKey("DataInputFields", db_column="data_input_field_id")
+    #data_template_data_id = models.IntegerField()
+    data_template_data_id = models.ForeignKey(DataTemplateData, db_column="data_template_data_id")
+    t_value = models.CharField(max_length=2L, blank=True)
+    value = models.TextField(blank=True)
+    class Meta:
+        db_table = 'data_input_data'
+
+class DataInputFields(models.Model):
+    id = models.IntegerField(primary_key=True)
+    hash = models.CharField(max_length=32L)
+    data_input_id = models.ForeignKey(DataInput, db_column="data_input_id")    
+    name = models.CharField(max_length=200L)
+    data_name = models.CharField(max_length=50L)
+    input_output = models.CharField(max_length=3L)
+    update_rra = models.CharField(max_length=2L, blank=True)
+    sequence = models.IntegerField()
+    type_code = models.CharField(max_length=40L, blank=True)
+    regexp_match = models.CharField(max_length=200L, blank=True)
+    allow_nulls = models.CharField(max_length=2L, blank=True)
+    class Meta:
+        db_table = 'data_input_fields'
+        

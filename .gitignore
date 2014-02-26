@@ -1,2 +1,4 @@
 /.project
 /.pydevproject
+/dist
+/cacti_rest.egg-info
