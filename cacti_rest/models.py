@@ -10,11 +10,18 @@ from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from django.db import models
 import simplejson
+from cacti_rest import utils
 
-
+class HostTemplate(models.Model):
+    id = models.IntegerField(primary_key=True)
+    hash = models.CharField(max_length=32L)
+    name = models.CharField(max_length=100L)
+    class Meta:
+        db_table = 'host_template'
+        
 class Host(models.Model):
     id = models.IntegerField(primary_key=True)
-    host_template_id = models.IntegerField()
+    host_template_id = models.ForeignKey(HostTemplate, db_column="host_template_id")
     description = models.CharField(max_length=150L)
     hostname = models.CharField(max_length=250L, blank=True)
     notes = models.TextField(blank=True)
@@ -121,8 +128,8 @@ class Settings(models.Model):
 
 DATA_INPUT_TYPE_CHOICES = (
         ("0", "SNMP"),
-        ("1", "SNMP Query" ),
-        ("2", "Script/Command"),
+        ("2", "SNMP Query" ),
+        ("1", "Script/Command"),
         ("3", "Script Query"),
         ("4", "Script - Script Server (PHP)"),
         ("5", "Script Query - Script Server"),
@@ -138,19 +145,9 @@ class DataInput(models.Model):
     class Meta:
         db_table = 'data_input'
     
-    def to_json(self):
-        return simplejson.dumps({
-            "resource_type": "data_input_method",             
-            "id": self.id, 
-            "name": self.name,
-            "input_string": self.input_string,
-            "type": self.type_id,
-            })
-    def save_off(self, request):
-        from cacti_rest import utils
-        print "ahora metemos el hash"
-        self.hash = utils.generate_hash(request)
-        print "ya esta metodo: %s" % self.hash
+    def save(self):       
+
+        self.hash = utils.generate_hash()
         return super(DataInput, self).save()
             
 
@@ -164,18 +161,33 @@ class DataInputData(models.Model):
     class Meta:
         db_table = 'data_input_data'
 
+
+DATA_INPUT_FIELD_TYPE_CHOICES = (
+    ("out", "out"),
+    ("in", "in"),
+)
+DATA_INPUT_FIELD_UPDATE_RRA_CHOICES = (
+    ("on", "on"),
+    ("", "off"),
+)
+
 class DataInputFields(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField(primary_key=True,blank=True)
     hash = models.CharField(max_length=32L)
-    data_input_id = models.ForeignKey(DataInput, db_column="data_input_id")    
+    data_input_id = models.ForeignKey(DataInput, db_column="data_input_id", related_name="output_fields")    
     name = models.CharField(max_length=200L)
     data_name = models.CharField(max_length=50L)
-    input_output = models.CharField(max_length=3L)
-    update_rra = models.CharField(max_length=2L, blank=True)
+    input_output = models.CharField(max_length=3L, choices=DATA_INPUT_FIELD_TYPE_CHOICES)
+    update_rra = models.CharField(max_length=2L, blank=True, choices=DATA_INPUT_FIELD_UPDATE_RRA_CHOICES, default="on")
     sequence = models.IntegerField()
     type_code = models.CharField(max_length=40L, blank=True)
     regexp_match = models.CharField(max_length=200L, blank=True)
     allow_nulls = models.CharField(max_length=2L, blank=True)
     class Meta:
         db_table = 'data_input_fields'
+    
+    def save(self):
+        self.sequence = DataInputFields.objects.all().count()
+        self.hash = utils.generate_hash()
+        super(DataInputFields, self).save()
         

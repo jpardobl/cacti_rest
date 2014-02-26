@@ -14,7 +14,7 @@ def retrieve_param(request, param_name, default=None, method="GET"):
         return source[param_name]
     return default
     
-def generate_hash(request):
+def generate_hash():
     m = hashlib.md5()
     
     #m.update(request.session._session_key)
